@@ -1,5 +1,7 @@
 from Database.database import Database
 
+ORDERS_LIMIT = 10
+
 
 class OrdersDatabase(Database):
 
@@ -28,6 +30,18 @@ class OrdersDatabase(Database):
 
         conn.commit()
         conn.close()
+
+    def get_orders_by_offset(self, offset):
+        conn = self._get_connection()
+        cur = conn.cursor()
+
+        cur.execute(f'SELECT * FROM {self._table_name} LIMIT {ORDERS_LIMIT} OFFSET {offset * ORDERS_LIMIT}')
+        result = cur.fetchall()
+
+        conn.commit()
+        conn.close()
+
+        return result
 
     def delete_order(self, order_id: int):
         conn = self._get_connection()

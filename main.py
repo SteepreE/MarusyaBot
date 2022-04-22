@@ -1,7 +1,7 @@
 import CONFIG
 import datetime
 
-from telebot import TeleBot
+from telebot import TeleBot, types
 from Database.ordersDatabase import OrdersDatabase
 from Database.userDatabase import UserDatabase
 from Keyboard import keyboard
@@ -43,22 +43,47 @@ def order_adding(message):
 @bot.message_handler(func=lambda message: message.text == keyboard.get_orders_list.text)
 @validate
 def show_order_list(message):
-    orders = orders_database.get_all_items()
-    result = get_order_list(orders)
+    orders = orders_database.get_orders_by_offset(0)
 
-    bot.send_message(message.from_user.id, text=result)
+    bot.send_message(message.from_user.id, text="Список заказов:",
+                     reply_markup=get_inline_orders(orders, 0))
 
 
-def get_order_list(order_list):
-    result = ""
+@bot.callback_query_handler(func=lambda call: True)
+def order_selector(call):
+    if call.data in ["back", "forward"]:
+        current_page = int(call.message.json["reply_markup"]["inline_keyboard"][0][0]["callback_data"])
+
+        if current_page == 0 and call.data == "back":
+            return
+
+        offset = 1 if call.data == "forward" else -1
+
+        bot.edit_message_reply_markup(call.message.chat.id, message_id=call.message.id,
+                                      reply_markup=get_inline_orders(
+                                          orders_database.get_orders_by_offset(current_page + offset),
+                                          current_page + offset
+                                      ))
+    else:
+        order = orders_database.find_order_by_id(int(call.data))
+
+        bot.send_message(call.message.chat.id, text=get_order_string(order))
+
+
+def get_inline_orders(order_list, current_page):
+    items = types.InlineKeyboardMarkup()
+
+    items.add(types.InlineKeyboardButton(f"Страница: {current_page + 1}", callback_data=str(current_page)))
 
     for order in order_list:
-        if str(order[STAGE]).lower() == "выполнен":
-            continue
+        order_string = get_inline_order_string(order)
+        button = types.InlineKeyboardButton(order_string, callback_data=order[ORDER_ID])
+        items.add(button)
 
-        result += get_order_string(order)
+    items.row(types.InlineKeyboardButton("<<", callback_data="back"),
+              types.InlineKeyboardButton(">>", callback_data="forward"))
 
-    return result if result != "" else "Заказов еще нет"
+    return items
 
 
 def get_order_string(order):
@@ -68,8 +93,13 @@ def get_order_string(order):
 Мерки: {order[SIZES]}
 Дата окончания работы: {order[FINISH_DATE]}
 Стадия работы: {order[STAGE]}
-Статус оплаты: {order[PRICE_INFO]}
------------------------\n"""
+Статус оплаты: {order[PRICE_INFO]}"""
+
+
+def get_inline_order_string(order):
+    order_client = user_database.find_user_by_id(order[USER_ID])
+    return f"""Заказ № {order[ORDER_ID]}: {order_client[2]} {order_client[1]}
+Стадия работы: {order[STAGE]}"""
 
 
 def create_order(message):
