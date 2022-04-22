@@ -27,7 +27,6 @@ class UserDatabase(Database):
 
         result = cur.fetchone()
 
-        conn.commit()
         conn.close()
 
         return result
@@ -40,7 +39,6 @@ class UserDatabase(Database):
 
         result = cur.fetchone()
 
-        conn.commit()
         conn.close()
 
         return result

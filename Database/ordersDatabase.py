@@ -1,6 +1,6 @@
 from Database.database import Database
 
-ORDERS_LIMIT = 10
+ORDERS_LIMIT = 2
 
 
 class OrdersDatabase(Database):
@@ -38,7 +38,6 @@ class OrdersDatabase(Database):
         cur.execute(f'SELECT * FROM {self._table_name} LIMIT {ORDERS_LIMIT} OFFSET {offset * ORDERS_LIMIT}')
         result = cur.fetchall()
 
-        conn.commit()
         conn.close()
 
         return result
@@ -62,7 +61,6 @@ class OrdersDatabase(Database):
         cur.execute(f'SELECT * FROM {self._table_name} WHERE id={order_id}')
         result = cur.fetchone()
 
-        conn.commit()
         conn.close()
 
         return result
@@ -74,7 +72,6 @@ class OrdersDatabase(Database):
         cur.execute(f'SELECT * FROM {self._table_name} WHERE user_id={user_id}')
         result = cur.fetchall()
 
-        conn.commit()
         conn.close()
 
         return result

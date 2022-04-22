@@ -34,19 +34,16 @@ def welcome(message):
                      reply_markup=keyboard.admin_keyboard)
 
 
-@bot.message_handler(func=lambda message: message.text == keyboard.add_order_button.text)
+@bot.message_handler(content_types='text')
 @validate
-def order_adding(message):
-    create_order(message)
+def order_adding(message: types.Message):
+    if message.text == keyboard.add_order_button.text:
+        create_order(message)
+    elif message.text == keyboard.get_orders_list_button.text:
+        orders = orders_database.get_orders_by_offset(0)
 
-
-@bot.message_handler(func=lambda message: message.text == keyboard.get_orders_list.text)
-@validate
-def show_order_list(message):
-    orders = orders_database.get_orders_by_offset(0)
-
-    bot.send_message(message.from_user.id, text="Список заказов:",
-                     reply_markup=get_inline_orders(orders, 0))
+        bot.send_message(message.from_user.id, text="Список заказов:",
+                         reply_markup=get_inline_orders(orders, 0))
 
 
 @bot.callback_query_handler(func=lambda call: True)
@@ -102,7 +99,7 @@ def get_inline_order_string(order):
 Стадия работы: {order[STAGE]}"""
 
 
-def create_order(message):
+def create_order(message: types.Message):
     order = Order()
 
     def input_first_name(m):
@@ -171,9 +168,5 @@ def add_order(order: Order):
     notify_admins()
 
 
-def main():
-    bot.polling(non_stop=True, interval=0)
-
-
 if __name__ == '__main__':
-    main()
+    bot.infinity_polling()
