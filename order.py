@@ -1,16 +1,17 @@
 ORDER_ID = 0
 USER_ID = 1
-SIZES = 2
-START_DATE = 3
-FINISH_DATE = 4
-STAGE = 5
-PRICE_INFO = 6
+PRODUCT = 2
+SIZES = 3
+START_DATE = 4
+FINISH_DATE = 5
+STAGE = 6
+PRICE_INFO = 7
 
 
 class Order:
-    user_first_name = None
-    user_second_name = None
-    user_third_name = None
+    client_name = None
+    client_phone = None
+    product = None
     sizes = None
     start_date = None
     finish_date = None

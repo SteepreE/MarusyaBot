@@ -12,18 +12,16 @@ class UserDatabase(Database):
 
         cur.execute(f'''CREATE TABLE IF NOT EXISTS {self._table_name}
                     (id INTEGER PRIMARY KEY AUTOINCREMENT, 
-                    first_name TEXT, second_name TEXT, third_name TEXT)''')
+                    name TEXT, phone TEXT)''')
 
         conn.commit()
         conn.close()
 
-    def find_user_by_name(self, first_name, second_name, third_name):
+    def find_user_by_name(self, name: str):
         conn = self._get_connection()
         cur = conn.cursor()
 
-        cur.execute(f'''SELECT * FROM {self._table_name} 
-                    WHERE first_name=? AND second_name=? AND third_name=?''',
-                    (first_name, second_name, third_name))
+        cur.execute(f'''SELECT * FROM {self._table_name} WHERE name=? ''', (name, ))
 
         result = cur.fetchone()
 
@@ -43,12 +41,12 @@ class UserDatabase(Database):
 
         return result
 
-    def add_user(self, first_name, second_name, third_name):
+    def add_user(self, name, phone):
         conn = self._get_connection()
         cur = conn.cursor()
 
-        cur.execute(f'''INSERT INTO {self._table_name} (first_name, second_name, third_name)
-                    VALUES (?,?,?)''', (first_name, second_name, third_name))
+        cur.execute(f'''INSERT INTO {self._table_name} (name, phone)
+                    VALUES (?,?)''', (name, phone))
 
         conn.commit()
         conn.close()

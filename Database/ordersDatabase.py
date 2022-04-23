@@ -13,20 +13,21 @@ class OrdersDatabase(Database):
         cur = conn.cursor()
 
         cur.execute(f'''CREATE TABLE IF NOT EXISTS {self._table_name}
-                    (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, sizes TEXT,
+                    (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, product TEXT, sizes TEXT,
                     start_date TEXT, finish_date TEXT, stage TEXT, price_info TEXT)''')
 
         conn.commit()
         conn.close()
 
-    def add_order(self, user_id: int, sizes: str, start_date: str, finish_date: str, stage: str, price_info: str):
+    def add_order(self, user_id: int, sizes: str, product: str,
+                  start_date: str, finish_date: str, stage: str, price_info: str):
         conn = self._get_connection()
         cur = conn.cursor()
 
         cur.execute(f'''INSERT INTO {self._table_name} 
-                    (user_id, sizes, start_date, finish_date, stage, price_info)
-                    VALUES (?,?,?,?,?,?)''',
-                    (user_id, sizes, start_date, finish_date, stage, price_info))
+                    (user_id, product, sizes, start_date, finish_date, stage, price_info)
+                    VALUES (?,?,?,?,?,?,?)''',
+                    (user_id, product, sizes, start_date, finish_date, stage, price_info))
 
         conn.commit()
         conn.close()
